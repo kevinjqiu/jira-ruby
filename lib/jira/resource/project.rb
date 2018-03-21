@@ -7,7 +7,6 @@ module JIRA
     class Project < JIRA::Base
 
       has_one :lead, :class => JIRA::Resource::User
-      has_many :components
       has_many :issuetypes, :attribute_key => 'issueTypes'
       has_many :versions
 
@@ -36,6 +35,15 @@ module JIRA
         json = self.class.parse_json(response.body)
         json.map do |jira_user|
           client.User.build(jira_user)
+        end
+      end
+
+      def components
+        components_url = client.options[:rest_base_path] + "/project/#{self.id}/components"
+        response = client.get(components_url)
+        json = self.class.parse_json(response.body)
+        json.map do |component|
+          client.Component.build(component)
         end
       end
     end
